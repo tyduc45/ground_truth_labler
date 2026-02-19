@@ -11,6 +11,15 @@ void AnnotationData::addLabel(const LabelDef& label)
     emit labelsChanged();
 }
 
+void AnnotationData::updateLabelColor(int id, QColor color)
+{
+    LabelDef* label = labelById(id);
+    if (label) {
+        label->color = color;
+        emit labelsChanged();
+    }
+}
+
 void AnnotationData::removeLabel(int labelId)
 {
     auto it = std::remove_if(m_labels.begin(), m_labels.end(),

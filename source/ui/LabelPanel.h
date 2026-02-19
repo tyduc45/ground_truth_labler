@@ -17,6 +17,8 @@ public:
 private slots:
     void onAddLabel();
     void onRemoveLabel();
+    void onChangeColor();
+    void onLabelSelectionChanged();
     void refreshList();
 
 private:
@@ -26,4 +28,5 @@ private:
     QLineEdit*      m_descEdit;
     QPushButton*    m_addBtn;
     QPushButton*    m_removeBtn;
+    QPushButton*    m_colorBtn;
 };

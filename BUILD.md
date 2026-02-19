@@ -29,7 +29,8 @@ vcpkg install opencv4[contrib]:x64-windows
 在项目根目录执行（将 `<vcpkg_root>` 替换为实际路径，如 `E:/vcpkg/vcpkg`）：
 
 ```bash
-cmake -DCMAKE_TOOLCHAIN_FILE=<vcpkg_root>/scripts/buildsystems/vcpkg.cmake -B build
+ cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE=E:/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake
+  -DCMAKE_PREFIX_PATH=E:/vcpkg/vcpkg/installed/x64-windows
 ```
 
 **首次配置**或**依赖发生变化后**，加 `--fresh` 清除旧缓存，避免 `NOTFOUND` 被错误复用：

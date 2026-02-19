@@ -43,6 +43,7 @@ public:
     // Label management
     void addLabel(const LabelDef& label);
     void removeLabel(int labelId);
+    void updateLabelColor(int id, QColor color);
     const std::vector<LabelDef>& labels() const { return m_labels; }
     LabelDef* labelById(int id);
     int nextLabelId();

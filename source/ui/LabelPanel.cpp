@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QListWidget>
 #include <QMessageBox>
+#include <QColorDialog>
 
 static const QColor s_colors[] = {
     Qt::green, Qt::red, Qt::blue, Qt::yellow, Qt::cyan,
@@ -34,28 +35,40 @@ LabelPanel::LabelPanel(AnnotationData* data, QWidget* parent)
     layout->addWidget(m_descEdit);
 
     auto* btnLayout = new QHBoxLayout;
-    m_addBtn = new QPushButton(tr("Add"));
+    m_addBtn    = new QPushButton(tr("Add"));
     m_removeBtn = new QPushButton(tr("Remove"));
     btnLayout->addWidget(m_addBtn);
     btnLayout->addWidget(m_removeBtn);
     layout->addLayout(btnLayout);
+
+    // Color picker row
+    auto* colorRow = new QHBoxLayout;
+    colorRow->addWidget(new QLabel(tr("Color:")));
+    m_colorBtn = new QPushButton;
+    m_colorBtn->setFixedWidth(40);
+    m_colorBtn->setFixedHeight(22);
+    m_colorBtn->setToolTip(tr("Click to change label color"));
+    colorRow->addWidget(m_colorBtn);
+    colorRow->addStretch();
+    layout->addLayout(colorRow);
 
     m_labelList = new QListWidget;
     layout->addWidget(m_labelList, 1);
 
     setFixedWidth(200);
 
-    connect(m_addBtn, &QPushButton::clicked, this, &LabelPanel::onAddLabel);
+    connect(m_addBtn,    &QPushButton::clicked, this, &LabelPanel::onAddLabel);
     connect(m_removeBtn, &QPushButton::clicked, this, &LabelPanel::onRemoveLabel);
+    connect(m_colorBtn,  &QPushButton::clicked, this, &LabelPanel::onChangeColor);
+    connect(m_labelList, &QListWidget::currentRowChanged,
+            this, [this](int) { onLabelSelectionChanged(); });
     connect(m_data, &AnnotationData::labelsChanged, this, &LabelPanel::refreshList);
 }
 
 int LabelPanel::selectedLabelId() const
 {
     auto* item = m_labelList->currentItem();
-    if (item)
-        return item->data(Qt::UserRole).toInt();
-    return -1;
+    return item ? item->data(Qt::UserRole).toInt() : -1;
 }
 
 void LabelPanel::onAddLabel()
@@ -67,10 +80,10 @@ void LabelPanel::onAddLabel()
     }
 
     LabelDef label;
-    label.id = m_data->nextLabelId();
-    label.name = name;
+    label.id          = m_data->nextLabelId();
+    label.name        = name;
     label.description = m_descEdit->text().trimmed();
-    label.color = s_colors[(label.id - 1) % s_numColors];
+    label.color       = s_colors[(label.id - 1) % s_numColors];
 
     m_data->addLabel(label);
     m_nameEdit->clear();
@@ -87,6 +100,39 @@ void LabelPanel::onRemoveLabel()
     m_data->removeLabel(labelId);
 }
 
+void LabelPanel::onChangeColor()
+{
+    int id = selectedLabelId();
+    if (id < 0) {
+        QMessageBox::information(this, tr("Info"), tr("Please select a label first."));
+        return;
+    }
+    QColor current;
+    for (const auto& lbl : m_data->labels()) {
+        if (lbl.id == id) { current = lbl.color; break; }
+    }
+    QColor chosen = QColorDialog::getColor(current, this, tr("Select Label Color"));
+    if (chosen.isValid())
+        m_data->updateLabelColor(id, chosen);
+}
+
+void LabelPanel::onLabelSelectionChanged()
+{
+    int id = selectedLabelId();
+    if (id < 0) {
+        m_colorBtn->setStyleSheet("background-color: #888;");
+        return;
+    }
+    for (const auto& lbl : m_data->labels()) {
+        if (lbl.id == id) {
+            m_colorBtn->setStyleSheet(
+                QString("background-color: %1; border: 1px solid #555;")
+                    .arg(lbl.color.name()));
+            return;
+        }
+    }
+}
+
 void LabelPanel::refreshList()
 {
     m_labelList->clear();
@@ -99,4 +145,5 @@ void LabelPanel::refreshList()
     }
     if (m_labelList->count() > 0)
         m_labelList->setCurrentRow(0);
+    onLabelSelectionChanged();
 }

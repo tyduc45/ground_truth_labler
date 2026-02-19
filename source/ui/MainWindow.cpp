@@ -121,9 +121,11 @@ void MainWindow::connectSignals()
     connect(m_resultPanel, &ResultPanel::exportMotRequested,
             this, &MainWindow::onExportMotRequested);
 
-    // Video widget box drawn
+    // Video widget box drawn / changed
     connect(m_videoWidget, &VideoWidget::boxDrawn,
             this, &MainWindow::onBoxDrawn);
+    connect(m_videoWidget, &VideoWidget::userBoxesChanged,
+            this, &MainWindow::updateButtonStates);
 
     // Playback timer
     connect(m_playbackTimer, &QTimer::timeout, this, [this]() {
@@ -462,6 +464,12 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
             onRun();
         else if (m_state == STATE_TRACKING)
             onStop();
+        break;
+    case Qt::Key_Backspace:
+        if (m_state == STATE_IDLE || m_state == STATE_PAUSED) {
+            m_videoWidget->removeLastUserBox();
+            updateButtonStates();
+        }
         break;
     case Qt::Key_Return:
     case Qt::Key_Enter:
