@@ -93,6 +93,6 @@ private:
     double  m_panYAtStart  = 0.0;
 
     // Coordinate transforms
-    QTransform m_widgetToVideoXform;
-    QTransform m_videoToWidgetXform;
+    QTransform m_widgetToScreenXform;
+    QTransform m_screenToWidgetXform;
 };

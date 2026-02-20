@@ -96,22 +96,22 @@ void VideoWidget::resetZoom()
 
 QRectF VideoWidget::widgetToVideo(const QRectF& widgetRect) const
 {
-    return m_widgetToVideoXform.mapRect(widgetRect);
+    return m_widgetToScreenXform.mapRect(widgetRect);
 }
 
 QRectF VideoWidget::videoToWidget(const QRectF& videoRect) const
 {
-    return m_videoToWidgetXform.mapRect(videoRect);
+    return m_screenToWidgetXform.mapRect(videoRect);
 }
 
 QPointF VideoWidget::widgetToVideoPoint(const QPointF& p) const
 {
-    return m_widgetToVideoXform.map(p);
+    return m_widgetToScreenXform.map(p);
 }
 
 QPointF VideoWidget::videoToWidgetPoint(const QPointF& p) const
 {
-    return m_videoToWidgetXform.map(p);
+    return m_screenToWidgetXform.map(p);
 }
 
 // ---------------------------------------------------------------------------
@@ -157,16 +157,22 @@ void VideoWidget::updateTransforms()
     m_displayRect = QRectF(m_panX, m_panY,
                            m_videoSize.width()  * scale,
                            m_videoSize.height() * scale);
+    /*
+    |-----------|<----screen
+    |  |--|     |
+    |  |. |<----|---- widget
+    |  |__|     |
+    |           |
+    |___________|
+    */
 
-    // Widget -> Video: translate by -pan, then divide by scale
-    m_widgetToVideoXform = QTransform();
-    m_widgetToVideoXform.translate(-m_panX, -m_panY);
-    m_widgetToVideoXform.scale(1.0 / scale, 1.0 / scale);
+    m_screenToWidgetXform = QTransform();
+    m_screenToWidgetXform.translate(m_panX, m_panY);
+    m_screenToWidgetXform.scale(scale, scale);
 
-    // Video -> Widget: multiply by scale, then translate by pan
-    m_videoToWidgetXform = QTransform();
-    m_videoToWidgetXform.scale(scale, scale);
-    m_videoToWidgetXform.translate(m_panX / scale, m_panY / scale);
+    m_widgetToScreenXform = QTransform();
+    m_widgetToScreenXform.scale(1.0 / scale, 1.0 / scale);
+    m_widgetToScreenXform.translate(-m_panX, -m_panY);
 }
 
 // ---------------------------------------------------------------------------
@@ -238,7 +244,7 @@ void VideoWidget::drawHandles(QPainter& painter, const QRectF& wRect)
     }
 }
 
-void VideoWidget::paintEvent(QPaintEvent* /*event*/)
+void VideoWidget::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
