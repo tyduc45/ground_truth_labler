@@ -458,6 +458,7 @@ void MainWindow::onBoxDrawn(const QRectF& /*videoRect*/)
 
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
+    
     switch (event->key()) {
     case Qt::Key_Space:
         if (m_state == STATE_IDLE || m_state == STATE_PAUSED)
@@ -467,7 +468,15 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         break;
     case Qt::Key_Backspace:
         if (m_state == STATE_IDLE || m_state == STATE_PAUSED) {
-            m_videoWidget->removeLastUserBox();
+			int selected = m_videoWidget->getSelectedBox();
+            if (selected != -1) {
+				m_videoWidget->removeSelectedUserbox(selected);
+				m_videoWidget->setSelectedBox(-1);
+           }
+            else {
+                m_videoWidget->removeLastUserBox();
+            }
+            update();
             updateButtonStates();
         }
         break;

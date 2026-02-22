@@ -14,6 +14,8 @@ class QWheelEvent;
 class VideoWidget : public QWidget {
     Q_OBJECT
 public:
+    void setSelectedBox(int value);
+    int getSelectedBox();
     explicit VideoWidget(QWidget* parent = nullptr);
 
     void displayFrame(const cv::Mat& frame);
@@ -23,6 +25,7 @@ public:
     void setDrawingEnabled(bool enabled);
     void clearUserBoxes();
     void removeLastUserBox();
+    void removeSelectedUserbox(int index);
     void resetZoom();
     std::vector<QRectF> userDrawnBoxes() const { return m_userBoxes; }
 
@@ -60,19 +63,20 @@ private:
     // Drawing enabled flag
     bool m_drawingEnabled = false;
 
-    // Drag mode
+    // mode
     enum DragMode { DragNone, DragDraw, DragMove, DragResize };
     DragMode m_dragMode = DragNone;
+	
 
     // New-box drawing state (widget coords)
     QPointF m_drawStart;
     QPointF m_drawCurrent;
 
     // Box selection / manipulation
-    int     m_selectedBox    = -1; // index in m_userBoxes (-1 = none)
-    int     m_resizeHandle   = -1; // 0=TL,1=TR,2=BR,3=BL
-    QPointF m_dragStartWidget;
-    QRectF  m_dragBoxOrigRect; // video coords at drag start
+    int      m_selectedBox = -1; // index in m_userBoxes (-1 = none)
+    int      m_resizeHandle = -1; // 0=TL,1=TR,2=BR,3=BL
+    QPointF    m_dragStartWidget;
+    QRectF     m_dragBoxOrigRect; // video coords at drag start
 
     std::vector<QRectF> m_userBoxes; // video coordinates
 

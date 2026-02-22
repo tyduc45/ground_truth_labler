@@ -22,6 +22,14 @@ VideoWidget::VideoWidget(QWidget* parent)
 // Public API
 // ---------------------------------------------------------------------------
 
+
+int VideoWidget::getSelectedBox() {
+    return m_selectedBox;
+}
+void VideoWidget::setSelectedBox(int value) {
+	m_selectedBox = value;
+}
+
 void VideoWidget::displayFrame(const cv::Mat& frame)
 {
     m_displayImage = FrameConverter::matToQImage(frame);
@@ -70,6 +78,10 @@ void VideoWidget::clearUserBoxes()
     m_selectedBox = -1;
     m_dragMode    = DragNone;
     update();
+}
+void VideoWidget::removeSelectedUserbox(int index)
+{
+	m_userBoxes.erase(m_userBoxes.begin() + index);
 }
 
 void VideoWidget::removeLastUserBox()

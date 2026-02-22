@@ -1,0 +1,10 @@
+build/**/*.*
+build
+
+!source/**/*.cpp
+!source/**/*.h
+!**/*.txt
+!.gitignore
+
+.vs
+.vscode
